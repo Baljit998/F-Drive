@@ -937,6 +937,11 @@ export default {
           field: "file_size",
           sortable: true,
         },
+        {
+          label: "Type",
+          field: "mime_type",
+          sortable: true,
+        },
       ].filter((item) => item.sortable);
     },
   },
@@ -1105,6 +1110,17 @@ export default {
           this.$store.commit("setCurrentFolder", data);
           this.folderContents.fetch();
         },
+        onError(error) {
+          if (error && error.exc_type === "PermissionError") {
+            this.$store.commit("setError", {
+              iconName: "alert-triangle",
+              iconClass: "fill-amber-500 stroke-white",
+              primaryMessage: "Forbidden",
+              secondaryMessage: "Insufficient permissions for this resource",
+            });
+          }
+          this.$router.replace({ name: "Error" });
+        },
         auto: true,
       };
     },
@@ -1166,6 +1182,15 @@ export default {
             entity.owner = entity.owner === this.userId ? "Me" : entity.owner;
             this.$store.commit("setCurrentViewEntites", data);
           });
+        },
+        onError(error) {
+          if (error && error.exc_type === "PermissionError") {
+            this.$store.commit("setError", {
+              primaryMessage: "Forbidden",
+              secondaryMessage: "Insufficient permissions for this resource",
+            });
+            this.$router.replace({ name: "Error" });
+          }
         },
         auto: false,
       };
